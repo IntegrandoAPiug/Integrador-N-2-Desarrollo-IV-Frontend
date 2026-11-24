@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import iconInstagram from '../assets/instagram.png'
 import iconFacebook from '../assets/facebook.png'
 import logo from '../assets/logo.png'
@@ -8,6 +9,8 @@ import iconTelefono from '../assets/telefono.png'
 import iconHorario from '../assets/horario.png'
 
 const Footer = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <footer className="footer">
       <div className="footer-grid">
@@ -67,6 +70,30 @@ const Footer = () => {
       <div className="footer-bottom">
         <p>© 2025 Pastelería. Todos los derechos reservados.</p>
         <p>Hecho con amor y harina</p>
+
+        <NavLink
+          to={isAuthenticated ? "/admin" : "/login"}
+          className="footer-admin-btn"
+          title={isAuthenticated ? "Ir al Panel de Administración" : "Acceso Administrador"}
+        >
+          {isAuthenticated ? (
+            <>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+              </svg>
+              <span>Panel</span>
+            </>
+          ) : (
+            <>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <span>Admin</span>
+            </>
+          )}
+        </NavLink>
       </div>
     </footer>
   )

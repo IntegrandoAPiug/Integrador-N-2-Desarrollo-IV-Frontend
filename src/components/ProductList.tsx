@@ -1,7 +1,9 @@
-import { products } from "../data/products";
+import { useProducts } from "../context/ProductsContext";
 import ProductCard from "./ProductCard";
 
 const ProductList = () => {
+  const { products } = useProducts();
+
   return (
     <div className="container mt-5">
 

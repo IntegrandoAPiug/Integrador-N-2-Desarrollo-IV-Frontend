@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import type { FormEvent } from 'react'
+import { useMessages } from '../context/MessagesContext'
 import iconDireccion from '../assets/direccion.png'
 import iconTelefono from '../assets/telefono.png'
 import iconHorario from '../assets/horario.png'
@@ -22,6 +23,7 @@ const contactInfo: ContactInfo[] = [
 const Contact = () => {
   const formRef = useRef<HTMLFormElement>(null)
   const [enviado, setEnviado] = useState(false)
+  const { addMessage } = useMessages()
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -29,8 +31,13 @@ const Contact = () => {
     if (!formRef.current) return
 
     const data = new FormData(formRef.current)
-    const usuario = Object.fromEntries(data)
-    console.log(usuario)
+    const nombre = String(data.get('nombre') || '').trim()
+    const email = String(data.get('email') || '').trim()
+    const mensaje = String(data.get('message') || '').trim()
+
+    if (!nombre || !email || !mensaje) return
+
+    addMessage({ nombre, email, mensaje })
 
     formRef.current.reset()
 
@@ -38,51 +45,73 @@ const Contact = () => {
     setTimeout(() => setEnviado(false), 3000)
   }
 
-return (
-  <div className="container">
-    <section className="contact-section">
-      <div className="contact-header">
-        <span className="contact-badge">Contacto</span>
-        <h1>¿Hablamos?</h1>
-        <p>Estamos aquí para hacer tus momentos más dulces. ¡Escribinos!</p>
-      </div>
-
-      <div className="contact-grid">
-        <div className="contact-info">
-          {contactInfo.map(item => (
-            <div key={item.label} className="contact-info-card">
-              <div className="contact-img"> <img src={item.img} alt={item.label} /></div>
-              <div>
-                <p className="contact-label">{item.label}</p>
-                <p className="contact-value">{item.value}</p>
-              </div>
-            </div>
-          ))}
+  return (
+    <div className="container">
+      <section className="contact-section">
+        <div className="contact-header">
+          <span className="contact-badge">Contacto</span>
+          <h1>¿Hablamos?</h1>
+          <p>Estamos aquí para hacer tus momentos más dulces. ¡Escribinos!</p>
         </div>
-        
-        <form ref= {formRef} onSubmit={handleSubmit} className="contact-form">
-          <div className='form-group'>
-            <label htmlFor='name' className='form-label mt-4'>Nombre</label>
-            <input type='text' className='form-control' id='name' placeholder='Tu Nombre'/>
-          </div>
 
-          <div className='form-group'>
-          <label htmlFor="exampleInputEmail1" className="form-label mt-4">Email</label>
-          <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Tu email@.com" />
-          <small id="emailHelp" className="form-text text-muted">No compartimos tu email con nadie</small>
-          </div>
-
-          <div className='form-group'>
-            <label htmlFor="message" className="form-label mt-4">Mensaje</label>
-            <textarea className="form-control" id="message" name='message' rows={3} placeholder='¿En qué podemos ayudarte?'/>
+        <div className="contact-grid">
+          <div className="contact-info">
+            {contactInfo.map(item => (
+              <div key={item.label} className="contact-info-card">
+                <div className="contact-img"> <img src={item.img} alt={item.label} /></div>
+                <div>
+                  <p className="contact-label">{item.label}</p>
+                  <p className="contact-value">{item.value}</p>
+                </div>
+              </div>
+            ))}
           </div>
           
-          {enviado && <p className='form-success'>Mensaje enviado. Te responderemos pronto :3</p>}
+          <form ref={formRef} onSubmit={handleSubmit} className="contact-form">
+            <div className='form-group'>
+              <label htmlFor='name' className='form-label mt-4'>Nombre</label>
+              <input
+                type='text'
+                className='form-control'
+                id='name'
+                name='nombre'
+                placeholder='Tu Nombre'
+                required
+              />
+            </div>
 
-          <button type="submit" className="btn btn-secondary">Enviar Mensaje</button>
-        </form>
-      </div>
-    </section>
+            <div className='form-group'>
+              <label htmlFor="exampleInputEmail1" className="form-label mt-4">Email</label>
+              <input
+                type="email"
+                className="form-control"
+                id="exampleInputEmail1"
+                name="email"
+                aria-describedby="emailHelp"
+                placeholder="Tu email@.com"
+                required
+              />
+              <small id="emailHelp" className="form-text text-muted">No compartimos tu email con nadie</small>
+            </div>
+
+            <div className='form-group'>
+              <label htmlFor="message" className="form-label mt-4">Mensaje</label>
+              <textarea
+                className="form-control"
+                id="message"
+                name='message'
+                rows={3}
+                placeholder='¿En qué podemos ayudarte?'
+                required
+              />
+            </div>
+            
+            {enviado && <p className='form-success'>Mensaje enviado. Te responderemos pronto :3</p>}
+
+            <button type="submit" className="btn btn-secondary">Enviar Mensaje</button>
+          </form>
+        </div>
+      </section>
     </div>
   )
 }

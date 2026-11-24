@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
-import { products } from '../data/products'
 import ProductCard from './ProductCard'
+import { useProducts } from '../context/ProductsContext';
 
 const Home = () => {
   const navigate = useNavigate()
+  const { products } = useProducts()
 
   return (
     <div>
