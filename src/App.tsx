@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import { Routes, Route, BrowserRouter, Navigate } from 'react-router-dom';
 import Home from './components/Home.tsx';
 import Cart from './components/Cart.tsx';
@@ -8,11 +9,11 @@ import Productos from './components/Productos.tsx';
 import Login from './components/Login.tsx';
 import AdminPanel from './components/AdminPanel.tsx';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
-import './App.css';
 import { ProductsProvider } from './context/ProductsContext.tsx';
-import {MessagesProvider} from './context/MessagesContext.tsx';
+import { MessagesProvider } from './context/MessagesContext.tsx';
+import { CartProvider } from './context/CartContext.tsx';
+import './App.css';
 
-// Componente para proteger rutas privadas
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -23,29 +24,38 @@ const App = () => {
     <AuthProvider>
       <ProductsProvider>
         <MessagesProvider>
-          <BrowserRouter>
-            <Header />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/productos" element={<Productos />} />
-              <Route path="/cart" element={<Cart />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminPanel />
-              </ProtectedRoute>
-            }
-          />
-            </Routes>
-           <Footer />
-          </BrowserRouter>
+          <CartProvider>
+            <BrowserRouter>
+              <Header />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/productos" element={<Productos />} />
+                <Route
+                  path="/cart"
+                  element={
+                    <ProtectedRoute>
+                      <Cart />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/login" element={<Login />} />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <AdminPanel />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+              <Footer />
+            </BrowserRouter>
+          </CartProvider>
         </MessagesProvider>
-    </ProductsProvider>
-  </AuthProvider>
-);
-}
+      </ProductsProvider>
+    </AuthProvider>
+  );
+};
 
 export default App;
