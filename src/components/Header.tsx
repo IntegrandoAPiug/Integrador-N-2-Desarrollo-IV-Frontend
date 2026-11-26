@@ -1,7 +1,20 @@
-import { NavLink } from "react-router-dom";
-import logo from '../assets/logo.png'
+import { useState, type FormEvent } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import logo from '../assets/logo.png';
+import { useProducts } from "../context/ProductsContext";
 
 const Header = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const { fetchProducts } = useProducts();
+  const navigate = useNavigate();
+
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault();
+    const query = searchTerm.trim();
+    fetchProducts(query ? `?search=${encodeURIComponent(query)}` : "");
+    navigate("/productos");
+  };
+
   return (
     <>
       <header className="main-header">
@@ -10,7 +23,14 @@ const Header = () => {
 
           <div className="container">
 
-            <NavLink className="navbar-brand logo" to="/">
+            <NavLink
+              className="navbar-brand logo"
+              to="/"
+              onClick={() => {
+                setSearchTerm("");
+                fetchProducts();
+              }}
+            >
               <img src={logo} alt="Logo pastelería" className="header-logo" />
             </NavLink>
 
@@ -28,7 +48,14 @@ const Header = () => {
               <ul className="navbar-nav mx-auto">
 
                 <li className="nav-item">
-                  <NavLink className="nav-link" to="/productos">
+                  <NavLink
+                    className="nav-link"
+                    to="/productos"
+                    onClick={() => {
+                      setSearchTerm("");
+                      fetchProducts();
+                    }}
+                  >
                     Productos
                   </NavLink>
                 </li>
@@ -47,15 +74,23 @@ const Header = () => {
 
               </ul>
 
-              <form className="d-flex">
+              <form className="d-flex" onSubmit={handleSearch}>
 
                 <input
                   className="form-control search-box"
                   type="search"
                   placeholder="Buscar postres..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSearchTerm(val);
+                    if (val === "") {
+                      fetchProducts();
+                    }
+                  }}
                 />
 
-                <button className="btn search-btn">
+                <button type="submit" className="btn search-btn">
                   Buscar
                 </button>
 
