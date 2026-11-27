@@ -7,6 +7,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [password2, setPassword2] = useState('');
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,15 +19,22 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setSuccessMsg('');
+
+    if (isRegister && password !== password2) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+
     setLoading(true);
 
     if (isRegister) {
-      const res = await register({ username, email, password });
+      const res = await register({ username, email, password, password2 });
       setLoading(false);
       if (res.ok) {
         setSuccessMsg('¡Cuenta creada con éxito! Ahora podés iniciar sesión.');
         setIsRegister(false);
         setPassword('');
+        setPassword2('');
       } else {
         setError(res.error || 'No se pudo registrar el usuario.');
       }
@@ -105,6 +113,21 @@ const Login = () => {
               required
             />
           </div>
+
+          {isRegister && (
+            <div className="login-group">
+              <label htmlFor="password2" className="form-label">Confirmar contraseña</label>
+              <input
+                id="password2"
+                type="password"
+                className="login-input"
+                placeholder="••••••••"
+                value={password2}
+                onChange={(e) => setPassword2(e.target.value)}
+                required
+              />
+            </div>
+          )}
 
           <button type="submit" className="login-btn" disabled={loading}>
             {loading
