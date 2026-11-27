@@ -9,7 +9,11 @@ import iconTelefono from '../assets/telefono.png'
 import iconHorario from '../assets/horario.png'
 
 const Footer = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
+
+  const scrollUp = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <footer className="footer">
@@ -22,17 +26,22 @@ const Footer = () => {
             Pastelería artesanal creando momentos dulces e inolvidables para vos y tu familia.
           </p>
           <div className="footer-social">
-            <a href="#" className="footer-social-btn" aria-label="Instagram"> <img src={iconInstagram} alt="Instagram" /> </a>
-            <a href="#" className="footer-social-btn" aria-label="Facebook"> <img src={iconFacebook} alt="Facebook" /> </a>
+            <a href="#top" onClick={(e) => { e.preventDefault(); scrollUp(); }} className="footer-social-btn" aria-label="Instagram">
+              <img src={iconInstagram} alt="Instagram" />
+            </a>
+            <a href="#top" onClick={(e) => { e.preventDefault(); scrollUp(); }} className="footer-social-btn" aria-label="Facebook">
+              <img src={iconFacebook} alt="Facebook" />
+            </a>
           </div>
         </div>
 
         <div className="footer-col">
           <h4 className="footer-col-title">Navegación</h4>
           <ul className="footer-links">
-            <li><NavLink to="/" className="footer-link">Inicio</NavLink></li>
-            <li><NavLink to="/cart" className="footer-link">Carrito</NavLink></li>
-            <li><NavLink to="/contact" className="footer-link">Contacto</NavLink></li>
+            <li><NavLink to="/" onClick={scrollUp} className="footer-link">Inicio</NavLink></li>
+            <li><NavLink to="/productos" onClick={scrollUp} className="footer-link">Productos</NavLink></li>
+            <li><NavLink to="/cart" onClick={scrollUp} className="footer-link">Carrito</NavLink></li>
+            <li><NavLink to="/contact" onClick={scrollUp} className="footer-link">Contacto</NavLink></li>
           </ul>
         </div>
 
@@ -71,29 +80,33 @@ const Footer = () => {
         <p>© 2025 Pastelería. Todos los derechos reservados.</p>
         <p>Hecho con amor y harina</p>
 
-        <NavLink
-          to={isAuthenticated ? "/admin" : "/login"}
-          className="footer-admin-btn"
-          title={isAuthenticated ? "Ir al Panel de Administración" : "Acceso Administrador"}
-        >
-          {isAuthenticated ? (
-            <>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
-              </svg>
-              <span>Panel</span>
-            </>
-          ) : (
-            <>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-              <span>Admin</span>
-            </>
-          )}
-        </NavLink>
+        {isAdmin ? (
+          <NavLink
+            to="/admin"
+            onClick={scrollUp}
+            className="footer-admin-btn"
+            title="Ir al Panel de Administración"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+            </svg>
+            <span>Panel</span>
+          </NavLink>
+        ) : !isAuthenticated ? (
+          <NavLink
+            to="/login"
+            onClick={scrollUp}
+            className="footer-admin-btn"
+            title="Acceso Administrador"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>Admin</span>
+          </NavLink>
+        ) : null}
       </div>
     </footer>
   )
