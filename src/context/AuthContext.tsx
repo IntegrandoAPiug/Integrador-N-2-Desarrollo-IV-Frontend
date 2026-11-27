@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { apiFetch } from '../services/api';
 
@@ -11,6 +11,8 @@ interface RegisterData {
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  isAdmin: boolean;
+  username: string | null;
   login: (username: string, password: string) => Promise<boolean>;
   register: (userData: RegisterData) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
@@ -24,21 +26,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return Boolean(token && token !== 'demo-admin-token');
   });
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const [username, setUsername] = useState<string | null>(() => {
+    return localStorage.getItem('username');
+  });
+
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    return localStorage.getItem('isAdmin') === 'true';
+  });
+
+  const checkAdminRole = async (user: string) => {
+    try {
+      const profile = await apiFetch<{ is_staff?: boolean; is_superuser?: boolean }>('/auth/me/', {
+        auth: true,
+      });
+      const adminFlag = Boolean(profile.is_staff || profile.is_superuser);
+      setIsAdmin(adminFlag);
+      localStorage.setItem('isAdmin', String(adminFlag));
+    } catch {
+      // Respaldo si el endpoint /auth/me/ aún no está desplegado en Render
+      const fallbackAdmin = user.toLowerCase() === 'admin';
+      setIsAdmin(fallbackAdmin);
+      localStorage.setItem('isAdmin', String(fallbackAdmin));
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && username) {
+      checkAdminRole(username);
+    }
+  }, [isAuthenticated, username]);
+
+  const login = async (user: string, password: string): Promise<boolean> => {
     try {
       const data = await apiFetch<{ access: string; refresh: string }>('/auth/login/', {
         method: 'POST',
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username: user, password }),
       });
 
-      if (data.access) {
-        localStorage.setItem('accessToken', data.access);
-      }
-      if (data.refresh) {
-        localStorage.setItem('refreshToken', data.refresh);
-      }
+      if (data.access) localStorage.setItem('accessToken', data.access);
+      if (data.refresh) localStorage.setItem('refreshToken', data.refresh);
+      localStorage.setItem('username', user);
 
+      setUsername(user);
       setIsAuthenticated(true);
+      await checkAdminRole(user);
       return true;
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
@@ -61,11 +92,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('username');
+    localStorage.removeItem('isAdmin');
+    setUsername(null);
+    setIsAdmin(false);
     setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, register, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isAdmin, username, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,5 +1,5 @@
-import type { JSX } from 'react';
-import { Routes, Route, BrowserRouter, Navigate } from 'react-router-dom';
+import { useEffect, type JSX } from 'react';
+import { Routes, Route, BrowserRouter, Navigate, useLocation } from 'react-router-dom';
 import Home from './components/Home.tsx';
 import Cart from './components/Cart.tsx';
 import Contact from './components/Contact';
@@ -19,6 +19,21 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
+const AdminRoute = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated, isAdmin } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isAdmin) return <Navigate to="/productos" replace />;
+  return children;
+};
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [pathname]);
+  return null;
+};
+
 const App = () => {
   return (
     <AuthProvider>
@@ -26,6 +41,7 @@ const App = () => {
         <MessagesProvider>
           <CartProvider>
             <BrowserRouter>
+              <ScrollToTop />
               <Header />
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -43,9 +59,9 @@ const App = () => {
                 <Route
                   path="/admin"
                   element={
-                    <ProtectedRoute>
+                    <AdminRoute>
                       <AdminPanel />
-                    </ProtectedRoute>
+                    </AdminRoute>
                   }
                 />
               </Routes>
