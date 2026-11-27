@@ -50,7 +50,17 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
+    const detalles = errorData?.error?.detalles;
+    let detalleTexto = '';
+
+    if (detalles && typeof detalles === 'object') {
+      detalleTexto = Object.entries(detalles)
+        .map(([campo, msgs]) => `${campo}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+        .join(' | ');
+    }
+
     const mensaje =
+      detalleTexto ||
       errorData?.error?.mensaje ||
       errorData?.detail ||
       'Error en la comunicación con el servidor';
